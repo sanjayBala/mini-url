@@ -12,7 +12,7 @@ def home():
 
 @app.route('/shorten', methods=['POST'])
 def shorten():
-    if not request.is_json():
+    if request.is_json() == False:
         print("Hey! This ain't a JSON.")
         return make_response(jsonify({'error': 'Bad Request'}), 400)
     else:
