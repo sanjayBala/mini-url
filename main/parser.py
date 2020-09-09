@@ -33,7 +33,7 @@ def dbConnect():
     finally:
         return r
 
-def insertUrl(incoming_url):
+def processUrl(incoming_url):
     r = dbConnect()
     if incoming_url in r:
         return r.get(incoming_url)

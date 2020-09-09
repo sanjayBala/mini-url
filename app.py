@@ -10,16 +10,21 @@ app.config['DEBUG'] = True
 def home():
     return "Hey, I am a URL Shortener Service."
 
-@app.route('/shorten', methods=['POST'])
-def shorten():
-    if request.is_json == False:
-        print("Hey! This ain't a JSON.")
-        return make_response(jsonify({'error': 'Bad Request'}), 400)
-    else:
-        print("Processing...")
-        encoded_url={ 'data': insertUrl(request.json.incoming_url)}
-        print("Complete.")
-        return jsonify(encoded_url)
+@app.route('/shorten/<string:incoming_url>', methods=['POST'])
+def shorten(incoming_url):
+    print("Processing...")
+    shortened_url=processUrl(incoming_url)
+    print("URL: " + str(shortened_url))
+    print("Complete.")
+    return make_response(jsonify({'Shortened URL': shortened_url}), 200)
+
+@app.route('/r/<string:incoming_url>', methods=['POST'])
+def shorten(incoming_url):
+    print("Processing...")
+    encoded_url=processUrl(incoming_url)
+    print("URL: " + str(encoded_url))
+    print("Complete.")
+    return make_response(encoded_url, 302)
 
 
 if __name__ == '__main__':
