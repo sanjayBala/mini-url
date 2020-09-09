@@ -19,7 +19,7 @@ def shorten(incoming_url):
     return make_response(jsonify({'Shortened URL': shortened_url}), 200)
 
 @app.route('/r/<string:incoming_url>', methods=['POST'])
-def shorten(incoming_url):
+def shorten_another(incoming_url):
     print("Processing...")
     encoded_url=processUrl(incoming_url)
     print("URL: " + str(encoded_url))
