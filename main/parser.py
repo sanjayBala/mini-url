@@ -38,6 +38,6 @@ def processUrl(incoming_url):
     if incoming_url in r:
         return r.get(incoming_url)
     else:
-        encoded_url = encodeUrl(incoming_url, counter.get())
+        encoded_url = encodeUrl(incoming_url, 1)
         r.set(incoming_url, encoded_url)
         return encoded_url
