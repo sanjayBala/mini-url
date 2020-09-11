@@ -26,6 +26,7 @@ def dbConnect():
     r = 0
     try:
         r = redis.from_url(os.environ.get("REDIS_URL"))
+        print("DB Connection seems okay!")
     except Exception as error:
         print ("Oops! An exception has occured:", error)
         print ("Exception TYPE:", type(error))
@@ -33,11 +34,14 @@ def dbConnect():
     finally:
         return r
 
-def processUrl(incoming_url):
-    r = dbConnect()
-    if incoming_url in r:
-        return r.get(incoming_url)
+def processUrl(original_url):
+    """
+        Returns original and shortened url as output
+    """
+    red = dbConnect()
+    if original_url in red:
+        return original_url, red.get(original_url)
     else:
-        encoded_url = encodeUrl(incoming_url, 1)
-        r.set(incoming_url, encoded_url)
-        return encoded_url
+        encoded_url = encodeUrl(original_url, 1)
+        red.set(original_url, encoded_url)
+        return original_url, encoded_url
