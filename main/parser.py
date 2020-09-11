@@ -48,12 +48,13 @@ class URLShortener():
         finally:
             return r
 
-    def processUrl(self, original_url, counter_seq = 12345):
+    def processUrl(self, original_url):
         """
             Returns original and shortened url as output
         """
         #global counter_seq
         red = self.dbConnect()
+        counter_seq = self.getCounter()
         encoded_url = self.encodeUrl(counter_seq)
         print("COUNTER VALUE: " + str(counter_seq))
         print("ORIGINAL URL: " + str(original_url))
@@ -63,7 +64,6 @@ class URLShortener():
         else:
             # key is encoded url - value is original url
             red.set(encoded_url, original_url)
-            print("incrementing counter...")
             #counter_seq = counter_seq + 1
             return original_url, encoded_url
 
@@ -76,6 +76,17 @@ class URLShortener():
             print("URL Present!")
             return red.get(encoded_url).decode('UTF-8')
         return None
+
+    def getCounter(self):
+        red = self.dbConnect()
+        curr_counter=0
+        if 'counter_value' in red:
+            curr_counter = int(red.get('counter_value').decode('UTF-8'))
+            print("incrementing counter...")
+            red.set('counter_value') = curr_counter + 1
+        else:
+            red.set('counter_value') = 1
+        return curr_counter
 
     def listAll(self):
         """
