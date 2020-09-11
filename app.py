@@ -27,7 +27,7 @@ def add_route():
 @app.route('/<string:shortened_url>', methods=['GET'])
 def redirect_to_original(shortened_url):
     print("Processing...")
-    original_url = str(shortner.getUrl(shortened_url))
+    original_url = str(shortner.redirectUrl(shortened_url))
     print("URL: " + original_url)
     print("Complete.")
     output = {"data": original_url}

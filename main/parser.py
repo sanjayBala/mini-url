@@ -60,7 +60,7 @@ class URLShortener():
             # return the existing encoded url
             return red.get(original_url).decode('UTF-8')
         else:
-            counter_seq = self.getCounter()
+            counter_seq = self.getAndUpdateCounter()
             encoded_url = self.encodeUrl(counter_seq)
             print("ENCODED URL: " + str(encoded_url))
             print("COUNTER VALUE: " + str(counter_seq))
@@ -69,20 +69,25 @@ class URLShortener():
             red.lpush('GLOBAL_URLS', encoded_url)
             return encoded_url
 
-    def getUrl(self, encoded_url):
+    def redirectUrl(self, encoded_url):
         """
             Returns original and shortened url as output
             Invoked to redirect
         """
         red = self.dbConnect()
-        encoded_url_list = red.get('GLOBAL_URLS')
-        if encoded_url in encoded_url_list:
-            print("URL Present!")
-            return red.get(encoded_url).decode('UTF-8')
-        print("Looks like this is a bad link!")
-        return None
+        seq_val = self.shortURLToId(encoded_url)
+        if seq_val <= self.getCounter():
+            print("This looks like a valid URL")
+            return str(red.get(encoded_url).decode('UTF-8'))
+        else:
+            print("This is not a valid URL")
+            return None
 
     def getCounter(self):
+        red = self.dbConnect()
+        return int(red.get('counter_value').decode('UTF-8'))
+
+    def getAndUpdateCounter(self):
         red = self.dbConnect()
         curr_counter=0
         if 'counter_value' in red:
