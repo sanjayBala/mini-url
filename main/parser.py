@@ -54,21 +54,24 @@ class URLShortener():
         """
         # global counter_seq
         red = self.dbConnect()
-        counter_seq = self.getAndUpdateCounter()
-        encoded_url = self.encodeUrl(counter_seq)
         print("ORIGINAL URL: " + str(original_url))
-        print("ENCODED URL: " + str(encoded_url))
-        print("COUNTER VALUE: " + str(counter_seq))
         if red.sismember('URL_SET', original_url):
-            print("Same mapping exists already, let's use that...")
+            print("Same URL mapping already exists, let's find that...")
             # return the existing encoded url
             key_list = red.keys()
             for key in key_list:
                 curr_val = red.get(key).decode('UTF-8')
                 if curr_val == original_url:
-                    return curr_val
+                    print("Found Mapping: " + str(key) + " => " + str(curr_val) )
+                    return key.decode('UTF-8')
+            print("No Mapping found, something is wrong...")
+            return None
         else:
             print("Adding the new URL to redis cache...")
+            counter_seq = self.getAndUpdateCounter()
+            encoded_url = self.encodeUrl(counter_seq)
+            print("ENCODED URL: " + str(encoded_url))
+            print("COUNTER VALUE: " + str(counter_seq))
             red.set(encoded_url, original_url)
             # add this to a global set for quick lookup
             red.sadd('URL_SET', original_url)
