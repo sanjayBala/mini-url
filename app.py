@@ -13,13 +13,14 @@ def home():
     return render_template('index.html')
 
 shortner = URLShortener()
+counter_seq = 121212
 
 @app.route('/shrtn', methods=['POST'])
 def add_route():
     form = MainForm()
     original_url = str(form.original_url.data)
     print("Processing..." + original_url)
-    a, shortened_url = shortner.processUrl(original_url)
+    a, shortened_url = shortner.processUrl(original_url, counter_seq)
     print("URL: " + str(shortened_url))
     print("Complete.")
     return render_template('result.html', original_url=original_url, shortened_url=shortened_url)
