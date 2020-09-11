@@ -48,6 +48,8 @@ class URLShortener():
         else:
             # key is encoded url - value is original url
             red.set(encoded_url, original_url)
+            print("incrementing counter...")
+            counter = counter + 1
             return original_url, encoded_url
 
     def getUrl(self, encoded_url):
