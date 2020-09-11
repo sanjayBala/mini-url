@@ -54,19 +54,24 @@ class URLShortener():
         """
         # global counter_seq
         red = self.dbConnect()
+        counter_seq = self.getAndUpdateCounter()
+        encoded_url = self.encodeUrl(counter_seq)
         print("ORIGINAL URL: " + str(original_url))
-        if original_url in red:
+        print("ENCODED URL: " + str(encoded_url))
+        print("COUNTER VALUE: " + str(counter_seq))
+        if red.sismember('URL_SET', original_url):
             print("Same mapping exists already, let's use that...")
             # return the existing encoded url
-            return red.get(original_url).decode('UTF-8')
+            key_list = red.keys()
+            for key in key_list:
+                curr_val = red.get(key).decode('UTF-8')
+                if curr_val == original_url:
+                    return curr_val
         else:
-            counter_seq = self.getAndUpdateCounter()
-            encoded_url = self.encodeUrl(counter_seq)
-            print("ENCODED URL: " + str(encoded_url))
-            print("COUNTER VALUE: " + str(counter_seq))
-            red.set(original_url, encoded_url)
-            # add this to a global list for quick lookup
-            red.lpush('GLOBAL_URLS', encoded_url)
+            print("Adding the new URL to redis cache...")
+            red.set(encoded_url, original_url)
+            # add this to a global set for quick lookup
+            red.sadd('URL_SET', original_url)
             return encoded_url
 
     def redirectUrl(self, encoded_url):
@@ -75,8 +80,7 @@ class URLShortener():
             Invoked to redirect
         """
         red = self.dbConnect()
-        seq_val = self.shortURLToId(encoded_url)
-        if seq_val <= self.getCounter():
+        if red.exists(encoded_url):
             print("This looks like a valid URL")
             return str(red.get(encoded_url).decode('UTF-8'))
         else:
