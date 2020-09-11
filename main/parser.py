@@ -50,22 +50,23 @@ class URLShortener():
 
     def processUrl(self, original_url):
         """
-            Returns original and shortened url as output
+            Returns original and encoded/shortened url as output
         """
-        #global counter_seq
+        # global counter_seq
         red = self.dbConnect()
-        counter_seq = self.getCounter()
-        encoded_url = self.encodeUrl(counter_seq)
-        print("COUNTER VALUE: " + str(counter_seq))
         print("ORIGINAL URL: " + str(original_url))
-        print("ENCODED URL: " + str(encoded_url))
-        if encoded_url in red:
-            return red.get(encoded_url), encoded_url
+        if original_url in red:
+            print("Same URL exists already, let's use that...")
+            # return the existing encoded url
+            return red.get(original_url.decode('UTF-8'))
         else:
             # key is encoded url - value is original url
-            red.set(encoded_url, original_url)
-            #counter_seq = counter_seq + 1
-            return original_url, encoded_url
+            counter_seq = self.getCounter()
+            encoded_url = self.encodeUrl(counter_seq)
+            print("ENCODED URL: " + str(encoded_url))
+            print("COUNTER VALUE: " + str(counter_seq))
+            red.set(original_url, encoded_url)
+            return encoded_url
 
     def getUrl(self, encoded_url):
         """
@@ -86,7 +87,7 @@ class URLShortener():
             print("older value: " + str(curr_counter))
             red.set('counter_value', curr_counter + 1)
         else:
-            red.set('counter_value', 1)
+            red.set('counter_value', 14433)
         return curr_counter
 
     def listAll(self):
