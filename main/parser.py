@@ -56,26 +56,30 @@ class URLShortener():
         red = self.dbConnect()
         print("ORIGINAL URL: " + str(original_url))
         if original_url in red:
-            print("Same URL exists already, let's use that...")
+            print("Same mapping exists already, let's use that...")
             # return the existing encoded url
             return red.get(original_url.decode('UTF-8'))
         else:
-            # key is encoded url - value is original url
             counter_seq = self.getCounter()
             encoded_url = self.encodeUrl(counter_seq)
             print("ENCODED URL: " + str(encoded_url))
             print("COUNTER VALUE: " + str(counter_seq))
             red.set(original_url, encoded_url)
+            # add this to a global list for quick lookup
+            red.lpush('GLOBAL_URLS', encoded_url)
             return encoded_url
 
     def getUrl(self, encoded_url):
         """
             Returns original and shortened url as output
+            Invoked to redirect
         """
         red = self.dbConnect()
-        if encoded_url in red:
+        encoded_url_list = red.get('GLOBAL_URLS')
+        if encoded_url in encoded_url_list:
             print("URL Present!")
             return red.get(encoded_url).decode('UTF-8')
+        print("Looks like this is a bad link!")
         return None
 
     def getCounter(self):
