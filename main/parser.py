@@ -58,7 +58,7 @@ class URLShortener():
         if original_url in red:
             print("Same mapping exists already, let's use that...")
             # return the existing encoded url
-            return red.get(original_url.decode('UTF-8'))
+            return red.get(original_url).decode('UTF-8')
         else:
             counter_seq = self.getCounter()
             encoded_url = self.encodeUrl(counter_seq)
