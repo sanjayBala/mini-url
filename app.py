@@ -8,19 +8,21 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
+shortner = URLShortener()
+counter_seq = 121212
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
-shortner = URLShortener()
-counter_seq = 121212
-
 @app.route('/shrtn', methods=['POST'])
 def add_route():
+    global counter_seq
     form = MainForm()
     original_url = str(form.original_url.data)
     print("Processing..." + original_url)
     a, shortened_url = shortner.processUrl(original_url, counter_seq)
+    counter_seq = counter_seq + 1
     print("URL: " + str(shortened_url))
     print("Complete.")
     return render_template('result.html', original_url=original_url, shortened_url=shortened_url)
