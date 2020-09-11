@@ -18,7 +18,7 @@ def add_route():
     form = MainForm()
     original_url = str(form.original_url.data)
     print("Processing..." + original_url)
-    a, shortened_url = processUrl(original_url, counter)
+    a, shortened_url = processUrl(original_url, 1287)
     print("URL: " + str(shortened_url))
     print("Complete.")
     counter = counter + 1
