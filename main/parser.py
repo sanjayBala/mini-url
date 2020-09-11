@@ -34,13 +34,13 @@ class URLShortener():
         finally:
             return r
 
-    def processUrl(self, original_url, counter):
+    def processUrl(self, original_url):
         """
             Returns original and shortened url as output
         """
         red = self.dbConnect()
         encoded_url = self.encodeUrl(self.counter)
-        print("COUNTER VALUE: " + str(counter))
+        print("COUNTER VALUE: " + str(self.counter))
         print("ORIGINAL URL: " + str(original_url))
         print("ENCODED URL: " + str(encoded_url))
         if encoded_url in red:
@@ -49,7 +49,7 @@ class URLShortener():
             # key is encoded url - value is original url
             red.set(encoded_url, original_url)
             print("incrementing counter...")
-            counter = counter + 1
+            self.counter = self.counter + 1
             return original_url, encoded_url
 
     def getUrl(self, encoded_url):
