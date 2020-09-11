@@ -12,12 +12,14 @@ app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 def home():
     return render_template('index.html')
 
+shortner = URLShortener()
+
 @app.route('/shrtn', methods=['POST'])
 def add_route():
     form = MainForm()
     original_url = str(form.original_url.data)
     print("Processing..." + original_url)
-    a, shortened_url = processUrl(original_url, 1287)
+    a, shortened_url = shortner.processUrl(original_url, 1287)
     print("URL: " + str(shortened_url))
     print("Complete.")
     return render_template('result.html', original_url=original_url, shortened_url=shortened_url)
@@ -25,7 +27,7 @@ def add_route():
 @app.route('/<string:shortened_url>', methods=['GET'])
 def redirect_to_original(shortened_url):
     print("Processing...")
-    original_url = str(getUrl(shortened_url))
+    original_url = str(shortner.getUrl(shortened_url))
     print("URL: " + original_url)
     print("Complete.")
     output = {"data": original_url}
