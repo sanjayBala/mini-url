@@ -83,7 +83,8 @@ class URLShortener():
         if 'counter_value' in red:
             curr_counter = int(red.get('counter_value').decode('UTF-8'))
             print("incrementing counter...")
-            red.set('counter_value') = curr_counter + 1
+            print("older value: " + str(curr_counter))
+            red.set('counter_value', curr_counter + 1)
         else:
             red.set('counter_value') = 1
         return curr_counter
