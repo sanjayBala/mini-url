@@ -9,6 +9,7 @@ app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 shortner = URLShortener()
+base_url = "https://sanjay-mini-url.herokuapp.com/"
 
 @app.route('/')
 def home():
@@ -22,7 +23,7 @@ def add_route():
     shortened_url = shortner.processUrl(original_url)
     print("URL: " + str(shortened_url))
     print("Complete.")
-    return render_template('result.html', original_url=original_url, shortened_url=shortened_url)
+    return render_template('result.html', original_url=original_url, shortened_url=base_url+shortened_url)
 
 @app.route('/<string:shortened_url>', methods=['GET'])
 def redirect_to_original(shortened_url):
