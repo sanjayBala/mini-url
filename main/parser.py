@@ -1,12 +1,26 @@
 import os
 import redis
 
+counter_seq = 12345
 class URLShortener():
-    counter=12345
+    def shortURLToId(self, shortURL): 
+        """
+            Converts short URL to an ID
+        """
+        id = 0
+        for i in shortURL: 
+            val_i = ord(i) 
+            if(val_i >= ord('a') and val_i <= ord('z')): 
+                id = id*62 + val_i - ord('a') 
+            elif(val_i >= ord('A') and val_i <= ord('Z')): 
+                id = id*62 + val_i - ord('Z') + 26
+            else: 
+                id = id*62 + val_i - ord('0') + 52
+        return id
 
     def encodeUrl(self, id):
         """
-            Encodes and returns a base62 output
+            Converts ID to a short URL
         """
         characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         # base = 62
@@ -38,9 +52,10 @@ class URLShortener():
         """
             Returns original and shortened url as output
         """
+        global counter_seq
         red = self.dbConnect()
-        encoded_url = self.encodeUrl(self.counter)
-        print("COUNTER VALUE: " + str(self.counter))
+        encoded_url = self.encodeUrl(counter_seq)
+        print("COUNTER VALUE: " + str(counter_seq))
         print("ORIGINAL URL: " + str(original_url))
         print("ENCODED URL: " + str(encoded_url))
         if encoded_url in red:
@@ -49,7 +64,7 @@ class URLShortener():
             # key is encoded url - value is original url
             red.set(encoded_url, original_url)
             print("incrementing counter...")
-            self.counter = self.counter + 1
+            counter_seq = counter_seq + 1
             return original_url, encoded_url
 
     def getUrl(self, encoded_url):
