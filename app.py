@@ -8,7 +8,6 @@ app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
-counter = 0
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -21,7 +20,6 @@ def add_route():
     a, shortened_url = processUrl(original_url, 1287)
     print("URL: " + str(shortened_url))
     print("Complete.")
-    counter = counter + 1
     return render_template('result.html', original_url=original_url, shortened_url=shortened_url)
 
 @app.route('/<string:shortened_url>', methods=['GET'])
