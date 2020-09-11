@@ -20,7 +20,6 @@ def add_route():
     original_url = str(form.original_url.data)
     print("Processing..." + original_url)
     a, shortened_url = shortner.processUrl(original_url)
-    counter_seq = counter_seq + 1
     print("URL: " + str(shortened_url))
     print("Complete.")
     return render_template('result.html', original_url=original_url, shortened_url=shortened_url)
