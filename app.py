@@ -43,7 +43,7 @@ def redirect_to_original(shortened_url):
     #return make_response(original_url, 302)
 
 @app.errorhandler(404)
-@app.route('/error')
+@app.route('/error', methods=['GET'])
 def error_not_found():
     return make_response(jsonify({'error': 'URL Mapping Not found'}), 404)
 
