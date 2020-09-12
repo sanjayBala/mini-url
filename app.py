@@ -19,9 +19,9 @@ def home():
 def add_route():
     form = MainForm()
     original_url = str(form.original_url.data)
-    print("Processing..." + original_url)
+    print("Processing: " + original_url)
     shortened_url = shortner.processUrl(original_url)
-    print("URL: " + str(shortened_url))
+    print("Shortened URL: " + str(shortened_url))
     print("Complete.")
     return render_template('result.html', original_url=original_url, shortened_url=base_url+shortened_url)
 
@@ -29,11 +29,16 @@ def add_route():
 def redirect_to_original(shortened_url):
     print("Processing...")
     original_url = str(shortner.redirectUrl(shortened_url))
-    print("URL: " + original_url)
-    print("Complete.")
-    output = {"data": original_url}
+    if original_url == None:
+        print("Looks like this is an invalid short URL...")
+        return redirect(error_not_found)
+    print("Original URL: " + original_url)
     return redirect(original_url)
     #return make_response(original_url, 302)
+
+@app.errorhandler(404)
+def error_not_found():
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 # @app.route('/list', methods=['GET'])
 # def list_all():

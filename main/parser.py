@@ -39,7 +39,7 @@ class URLShortener():
         """
         r = 0
         try:
-            r = redis.from_url(os.environ.get("REDIS_URL", "redis://h:pbdcc558025587326c87da83247eb8848b2eff3b66b33b95fccdce4453ad3a6c6@ec2-3-225-163-0.compute-1.amazonaws.com:18269"))
+            r = redis.from_url(os.environ.get("REDIS_URL"))
             print("DB Connection seems okay!")
         except Exception as error:
             print ("Oops! An exception has occured:", error)
