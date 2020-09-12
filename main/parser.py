@@ -84,10 +84,10 @@ class URLShortener():
         """
         red = self.dbConnect()
         if red.exists(encoded_url):
-            print("This looks like a valid URL")
+            print("This looks like a valid short URL")
             return str(red.get(encoded_url).decode('UTF-8'))
         else:
-            print("This is not a valid URL")
+            print("This is not a valid short URL")
             return None
 
     def getCounter(self):

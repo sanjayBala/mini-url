@@ -10,6 +10,7 @@ app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 shortner = URLShortener()
 base_url = "https://sanjay-mini-url.herokuapp.com/"
+protocol_prefix="https://"
 
 @app.route('/')
 def home():
@@ -28,12 +29,16 @@ def add_route():
 @app.route('/<string:shortened_url>', methods=['GET'])
 def redirect_to_original(shortened_url):
     print("Processing...")
-    original_url = str(shortner.redirectUrl(shortened_url))
+    original_url = shortner.redirectUrl(shortened_url)
     if original_url == None:
         print("Looks like this is an invalid short URL...")
-        return redirect(url_for(error_not_found), 302)
-    print("Original URL: " + original_url)
-    return redirect(original_url)
+        print("DEBUG: "+ str(url_for(error_not_found)))
+        return redirect(url_for(error_not_found), 404)
+    print("Original URL: " + str(original_url))
+    if protocol_prefix in original_url:
+        return redirect(original_url)
+    else:
+        return redirect(protocol_prefix + original_url)
     #return make_response(original_url, 302)
 
 @app.errorhandler(404)
