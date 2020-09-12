@@ -1,5 +1,5 @@
 import json
-from flask import Flask, render_template, request, jsonify, redirect, make_response
+from flask import Flask, render_template, request, jsonify, redirect, make_response, url_for
 from forms import *
 from main.parser import *
 
@@ -31,7 +31,7 @@ def redirect_to_original(shortened_url):
     original_url = str(shortner.redirectUrl(shortened_url))
     if original_url == None:
         print("Looks like this is an invalid short URL...")
-        return redirect(error_not_found)
+        return redirect(url_for(error_not_found), 302)
     print("Original URL: " + original_url)
     return redirect(original_url)
     #return make_response(original_url, 302)
