@@ -32,18 +32,20 @@ def redirect_to_original(shortened_url):
     original_url = shortner.redirectUrl(shortened_url)
     if original_url == None:
         print("Looks like this is an invalid short URL...")
-        print("DEBUG: "+ str(url_for(error_not_found)))
-        return redirect(url_for(error_not_found), 404)
-    print("Original URL: " + str(original_url))
+        return redirect(url_for('error_not_found'))
+    original_url = str(original_url)
+    print("Original URL: " + original_url)
     if protocol_prefix in original_url:
         return redirect(original_url)
     else:
+        print("Appending protocol prefix... Redirecting...")
         return redirect(protocol_prefix + original_url)
     #return make_response(original_url, 302)
 
 @app.errorhandler(404)
+@app.route('/error')
 def error_not_found():
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response(jsonify({'error': 'URL Mapping Not found'}), 404)
 
 # @app.route('/list', methods=['GET'])
 # def list_all():
