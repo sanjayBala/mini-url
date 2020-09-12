@@ -32,7 +32,7 @@ def redirect_to_original(shortened_url):
     original_url = shortner.redirectUrl(shortened_url)
     if original_url == None:
         print("Looks like this is an invalid short URL...")
-        return redirect(url_for('error_not_found', error_message="Invalid Short URL, this Mapping is not present!"))
+        return redirect(url_for('error_page', error_message="Invalid Short URL, this Mapping is not present!"))
     original_url = str(original_url)
     print("Original URL: " + original_url)
     if protocol_prefix in original_url:
@@ -40,10 +40,9 @@ def redirect_to_original(shortened_url):
     else:
         print("Appending protocol prefix... Redirecting...")
         return redirect(protocol_prefix + original_url)
-    #return make_response(original_url, 302)
 
-@app.route('/error', methods=['GET'])
-def error_not_found(error_message="URL Mapping not found!!"):
+@app.route('/errorhandler', methods=['GET'])
+def error_page(error_message="Something went wrong"):
     return render_template('error.html', error_message=error_message)
 
 # @app.route('/list', methods=['GET'])

@@ -1,7 +1,6 @@
 import os
 import redis
 
-#counter_seq = 12345
 class URLShortener():
     def shortURLToId(self, shortURL): 
         """
@@ -37,7 +36,7 @@ class URLShortener():
         """
             Attempts a DB connection and returns the DB Object
         """
-        r = 0
+        r = redis.StrictRedis()
         try:
             r = redis.from_url(os.environ.get("REDIS_URL"))
             print("DB Connection seems okay!")
@@ -52,15 +51,16 @@ class URLShortener():
         """
             Returns original and encoded/shortened url as output
         """
-        # global counter_seq
         red = self.dbConnect()
-        print("ORIGINAL URL: " + str(original_url))
+        original_url=str(original_url)
+        print("ORIGINAL URL: " + original_url)
         if red.sismember('URL_SET', original_url):
             print("Same URL mapping already exists, let's find that...")
             # return the existing encoded url
-            key_list = red.keys()
-            for key in key_list:
+            for key in red.scan_iter():
+                print("Checking Key: " + str(key))
                 curr_val = red.get(key).decode('UTF-8')
+                print("Checking Value: " + str(curr_val))
                 if curr_val == original_url:
                     print("Found Mapping: " + str(key) + " => " + str(curr_val) )
                     return key.decode('UTF-8')
@@ -71,7 +71,7 @@ class URLShortener():
             counter_seq = self.getAndUpdateCounter()
             encoded_url = self.encodeUrl(counter_seq)
             print("ENCODED URL: " + str(encoded_url))
-            print("COUNTER VALUE: " + str(counter_seq))
+            print("NEW COUNTER VALUE: " + str(counter_seq))
             red.set(encoded_url, original_url)
             # add this to a global set for quick lookup
             red.sadd('URL_SET', original_url)
