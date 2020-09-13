@@ -2,6 +2,21 @@ import os
 import redis
 
 class URLShortener():
+    def dbConnect(self):
+        """
+            Attempts a Redis DB connection and returns the DB Object
+        """
+        r = redis.StrictRedis()
+        try:
+            r = redis.from_url(os.environ.get("REDIS_URL"))
+            print("DB Connection seems okay!")
+        except Exception as error:
+            print ("Oops! An exception has occured:", error)
+            print ("Exception TYPE:", type(error))
+            r = None
+        finally:
+            return r
+
     def shortURLToId(self, shortURL): 
         """
             Converts short URL to an ID
@@ -32,21 +47,6 @@ class URLShortener():
         # reverse and return
         return "".join(ret[::-1])
 
-    def dbConnect(self):
-        """
-            Attempts a DB connection and returns the DB Object
-        """
-        r = redis.StrictRedis()
-        try:
-            r = redis.from_url(os.environ.get("REDIS_URL"))
-            print("DB Connection seems okay!")
-        except Exception as error:
-            print ("Oops! An exception has occured:", error)
-            print ("Exception TYPE:", type(error))
-            r = None
-        finally:
-            return r
-
     def processUrl(self, original_url):
         """
             Returns original and encoded/shortened url as output
@@ -58,12 +58,13 @@ class URLShortener():
             print("Same URL mapping already exists, let's find that...")
             # return the existing encoded url
             for key in red.scan_iter():
-                print("Checking Key: " + str(key))
-                curr_val = red.get(key).decode('UTF-8')
-                print("Checking Value: " + str(curr_val))
-                if curr_val == original_url:
-                    print("Found Mapping: " + str(key) + " => " + str(curr_val) )
-                    return key.decode('UTF-8')
+                if key.decode('utf-8') not in ['URL_SET', 'counter_value']:
+                    print("Checking Key: " + str(key))
+                    curr_val = red.get(key).decode('UTF-8')
+                    print("Checking Value: " + str(curr_val))
+                    if curr_val == original_url:
+                        print("Found Mapping: " + str(key) + " => " + str(curr_val) )
+                        return key.decode('UTF-8')
             print("No Mapping found, something is wrong...")
             return None
         else:

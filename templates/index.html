@@ -17,10 +17,27 @@
         </h2>
         <div class="form-group" align="center">
             </br></br></br></br></br>
-            <form method="POST" action="{{url_for('add_route')}}" enctype="multipart/form-data" >
-                <input type="text" name="original_url" class="form-text text-muted">
-                </br></br>
-                <input type="submit" class="btn btn-dark mb-2" value="SHRTN!">
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                <fieldset class="form-group">
+                    <div class="form-group">
+                        {% if form.original_url.errors %}
+                            {{ form.original_url(class="form-text is-invalid") }}
+                            <div class="text-white">
+                                </br>
+                                {% for error in form.original_url.errors %}
+                                    <span>{{ error }}</span>
+                                    </br>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.original_url(class="form-text") }}
+                        {% endif %}
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-dark mb-1", value="SHRTN!") }}
+                </div>
             </form>
         </div>
     </body>

@@ -1,7 +1,7 @@
 import json
-from flask import Flask, render_template, request, jsonify, redirect, make_response, url_for
-from forms import *
-from main.parser import *
+from flask import Flask, render_template, request, jsonify, redirect, make_response, url_for, flash
+from forms.forms import MainForm
+from main.parser import URLShortener
 
 # init flask app
 app = Flask(__name__)
@@ -12,19 +12,23 @@ shortner = URLShortener()
 base_url = "https://sanjay-mini-url.herokuapp.com/"
 protocol_prefix="https://"
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def home():
-    return render_template('index.html')
-
-@app.route('/shrtn', methods=['POST'])
-def add_route():
     form = MainForm()
-    original_url = str(form.original_url.data)
-    print("Processing: " + original_url)
-    shortened_url = shortner.processUrl(original_url)
-    print("Shortened URL: " + str(shortened_url))
-    print("Complete.")
-    return render_template('result.html', original_url=original_url, shortened_url=base_url+shortened_url)
+    # if form is submitted and validated
+    if form.validate_on_submit():
+        original_url = str(form.original_url.data)
+        print("Processing: " + original_url)
+        shortened_url = shortner.processUrl(original_url)
+        print("Shortened URL: " + str(shortened_url))
+        print("Complete.")
+        return render_template('result.html', original_url=original_url, shortened_url=base_url+shortened_url)
+    # if form is invalid
+    elif form.is_submitted():
+        print("Invalid form inputs")
+        flash(f'Invalid URL entered!', 'warning')
+    # if this is just a hit to /
+    return render_template('index.html', form=form)
 
 @app.route('/<string:shortened_url>', methods=['GET'])
 def redirect_to_original(shortened_url):
@@ -32,7 +36,7 @@ def redirect_to_original(shortened_url):
     original_url = shortner.redirectUrl(shortened_url)
     if original_url == None:
         print("Looks like this is an invalid short URL...")
-        return redirect(url_for('error_page', error_message="Invalid Short URL, this Mapping is not present!"))
+        return redirect(url_for('error_page', error_message="Invalid Short URL, this Mapping is not present in our Database!"))
     original_url = str(original_url)
     print("Original URL: " + original_url)
     if protocol_prefix in original_url:
@@ -44,13 +48,6 @@ def redirect_to_original(shortened_url):
 @app.route('/errorhandler', methods=['GET'])
 def error_page(error_message="Something went wrong"):
     return render_template('error.html', error_message=error_message)
-
-# @app.route('/list', methods=['GET'])
-# def list_all():
-#     all_values = listAll()
-#     print("ALL VALUES SO FAR")
-#     print(all_values)
-#     return make_response(jsonify({"all_keys": all_values}), 200)
 
 if __name__ == '__main__':
     app.run()
