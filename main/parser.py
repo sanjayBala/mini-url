@@ -1,5 +1,8 @@
 import os
 import redis
+from datetime import timedelta
+
+days_to_live=7
 
 class URLShortener():
     def dbConnect(self):
@@ -54,9 +57,10 @@ class URLShortener():
         red = self.dbConnect()
         original_url=str(original_url)
         print("ORIGINAL URL: " + original_url)
+        # check set to see if it is an existing url
         if red.sismember('URL_SET', original_url):
             print("Same URL mapping already exists, let's find that...")
-            # return the existing encoded url
+            # return the existing url
             for key in red.scan_iter():
                 if key.decode('utf-8') not in ['URL_SET', 'counter_value']:
                     print("Checking Key: " + str(key))
@@ -64,19 +68,26 @@ class URLShortener():
                     print("Checking Value: " + str(curr_val))
                     if curr_val == original_url:
                         print("Found Mapping: " + str(key) + " => " + str(curr_val) )
-                        return key.decode('UTF-8')
+                        return key.decode('UTF-8'), red.ttl(key)
             print("No Mapping found, something is wrong...")
-            return None
-        else:
-            print("Adding the new URL to redis cache...")
-            counter_seq = self.getAndUpdateCounter()
-            encoded_url = self.encodeUrl(counter_seq)
-            print("ENCODED URL: " + str(encoded_url))
-            print("NEW COUNTER VALUE: " + str(counter_seq))
-            red.set(encoded_url, original_url)
-            # add this to a global set for quick lookup
-            red.sadd('URL_SET', original_url)
-            return encoded_url
+            print("Possibly a manual deletion")
+            print("Adding the URL mapping again...")
+        # if not found or if it is a new url - do the following
+        # add to cache, update counter
+        print("Adding the new URL to redis cache...")
+        counter_seq = self.getAndUpdateCounter()
+        encoded_url = self.encodeUrl(counter_seq)
+        print("ENCODED URL: " + str(encoded_url))
+        print("NEW COUNTER VALUE: " + str(counter_seq))
+        red.set(encoded_url, original_url)
+        
+        # adding an expiry
+        expiry_time = timedelta(days=days_to_live)
+        print("Setting an expiry of " + str(expiry_time.days) + " days for the URL.")
+        red.expire(encoded_url, expiry_time)
+        # add this to a global set for quick lookup
+        red.sadd('URL_SET', original_url)
+        return encoded_url, red.ttl(encoded_url)
 
     def redirectUrl(self, encoded_url):
         """
@@ -96,6 +107,9 @@ class URLShortener():
         return int(red.get('counter_value').decode('UTF-8'))
 
     def getAndUpdateCounter(self):
+        """
+            Returns the counter and increments by 1
+        """
         red = self.dbConnect()
         curr_counter=0
         if 'counter_value' in red:
@@ -104,6 +118,7 @@ class URLShortener():
             print("older value: " + str(curr_counter))
             red.set('counter_value', curr_counter + 1)
         else:
+            # just an arbitrary value
             red.set('counter_value', 14433)
         return curr_counter
 

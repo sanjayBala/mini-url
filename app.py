@@ -19,15 +19,17 @@ def home():
     if form.validate_on_submit():
         original_url = str(form.original_url.data)
         print("Processing: " + original_url)
-        shortened_url = shortner.processUrl(original_url)
+        shortened_url, expiry_time = shortner.processUrl(original_url)
         print("Shortened URL: " + str(shortened_url))
         print("Complete.")
-        return render_template('result.html', original_url=original_url, shortened_url=base_url+shortened_url)
+        if expiry_time == -1:
+            expiry_time = "bazillion"
+        return render_template('result.html', original_url=original_url, shortened_url=base_url+shortened_url, expiry_time=expiry_time)
     # if form is invalid
     elif form.is_submitted():
         print("Invalid form inputs")
         flash(f'Invalid URL entered!', 'warning')
-    # if this is just a hit to /
+    # if this is just a hit to home
     return render_template('index.html', form=form)
 
 @app.route('/<string:shortened_url>', methods=['GET'])
